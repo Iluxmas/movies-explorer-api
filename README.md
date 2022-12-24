@@ -2,6 +2,6 @@
 
 Backend приложения MovieDB.
 
-- Server IP XXX
+- Server IP 158.160.11.31
 
-- Backend XXX
+- [Backend](kino.nomoredomains.club/api)

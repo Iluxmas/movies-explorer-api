@@ -12,7 +12,7 @@ const rateLimiter = require('./middlewares/rateLimiter');
 const errorsHandler = require('./middlewares/errorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, DB_URI = 'mongodb://localhost:27017/bitfilmsdb' } = process.env;
 const app = express();
 
 app.use('*', cors);
@@ -23,13 +23,7 @@ app.use(requestLogger);
 app.use(helmet());
 app.use(rateLimiter);
 
-mongoose.connect('mongodb://localhost:27017/moviesdb');
-
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
+mongoose.connect(DB_URI);
 
 app.use('/api', routes);
 app.all('*', (req, res, next) => next(new Error404('Страницы по данному адресу не существует')));

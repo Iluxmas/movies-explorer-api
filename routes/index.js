@@ -1,10 +1,10 @@
 const router = require('express').Router();
-const { validateSignin, validateSignup } = require('../middlewares/validation');
-const { login, createUser } = require('../controllers/users');
-const Error404 = require('../errors/error404');
-const auth = require('../middlewares/auth');
-const movieRouter = require('./movies');
 const userRouter = require('./users');
+const movieRouter = require('./movies');
+const auth = require('../middlewares/auth');
+const Error404 = require('../errors/error404');
+const { login, createUser } = require('../controllers/users');
+const { validateSignin, validateSignup } = require('../middlewares/validation');
 
 router.post('/signin', validateSignin, login);
 router.post('/signup', validateSignup, createUser);
