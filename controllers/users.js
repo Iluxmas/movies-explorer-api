@@ -11,17 +11,13 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 function createUser(req, res, next) {
   const {
-    password, email, name, about, avatar,
+    password, email, name,
   } = req.body;
   bcrypt.hash(password, 12)
-    .then((hash) => User.create({
-      email, password: hash, name, about, avatar,
-    }))
+    .then((hash) => User.create({ email, password: hash, name }))
     .then(() => {
       res.send({
-        data: {
-          email, name, about, avatar,
-        },
+        data: { email, name },
       });
     })
     .catch((error) => {
@@ -29,15 +25,6 @@ function createUser(req, res, next) {
       else if (error.code === 11000) next(new Error409('Пользователь с такой почтой уже зарегестрирован'));
       else next(error);
     });
-}
-
-function getUser(req, res, next) {
-  User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) return next(new Error404('Пользователь не найден'));
-      return res.send(user);
-    })
-    .catch(next);
 }
 
 function getMyInfo(req, res, next) {
@@ -49,28 +36,9 @@ function getMyInfo(req, res, next) {
     .catch(next);
 }
 
-function getAllUsers(req, res, next) {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(next);
-}
-
 function updateUser(req, res, next) {
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, req.body, { runValidators: true, new: true })
-    .then((user) => {
-      if (!user) return next(new Error404('Пользователя с указанным id не найдено'));
-      return res.send(user);
-    })
-    .catch((error) => {
-      if (error.name === 'ValidationError') next(new Error400('Переданы некорректные данные'));
-      else next(error);
-    });
-}
-
-function updateAvatar(req, res, next) {
-  const { _id } = req.user;
-  User.findByIdAndUpdate(_id, req.body, { new: true })
     .then((user) => {
       if (!user) return next(new Error404('Пользователя с указанным id не найдено'));
       return res.send(user);
@@ -103,10 +71,7 @@ function login(req, res, next) {
 
 module.exports = {
   createUser,
-  getUser,
   getMyInfo,
-  getAllUsers,
   updateUser,
-  updateAvatar,
   login,
 };
