@@ -24,7 +24,7 @@ app.use(rateLimiter);
 
 mongoose.connect(DB_URI);
 
-app.use(routes);
+app.use('/api', routes);
 
 app.use(errorLogger);
 app.use(errors());
