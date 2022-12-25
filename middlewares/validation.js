@@ -25,7 +25,7 @@ const validateUserInfo = celebrate({
 
 const validateMovieId = celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().alphanum().length(24),
+    movieId: Joi.string().required().pattern(/^[a-f0-9]{24}$/),
   }),
 });
 
@@ -39,7 +39,7 @@ const validateNewMovieData = celebrate({
     image: Joi.string().required().pattern(Patterns.url),
     trailerLink: Joi.string().required().pattern(Patterns.url),
     thumbnail: Joi.string().required().pattern(Patterns.url),
-    movieId: Joi.string().required(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),

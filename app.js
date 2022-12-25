@@ -7,12 +7,11 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const cors = require('./middlewares/cors');
-const Error404 = require('./errors/error404');
+const { PORT, DB_URI } = require('./config');
 const rateLimiter = require('./middlewares/rateLimiter');
 const errorsHandler = require('./middlewares/errorsHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, DB_URI = 'mongodb://localhost:27017/bitfilmsdb' } = process.env;
 const app = express();
 
 app.use('*', cors);
@@ -25,8 +24,7 @@ app.use(rateLimiter);
 
 mongoose.connect(DB_URI);
 
-app.use('/api', routes);
-app.all('*', (req, res, next) => next(new Error404('Страницы по данному адресу не существует')));
+app.use('/', routes);
 
 app.use(errorLogger);
 app.use(errors());

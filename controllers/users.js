@@ -1,13 +1,13 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { JWT_SECRET } = require('../config');
 const Error400 = require('../errors/error400');
 const Error401 = require('../errors/error401');
 const Error404 = require('../errors/error404');
 const Error409 = require('../errors/error409');
+const { USER, VALIDATION } = require('../utils/ErrorMessages');
 const { StatusCodes } = require('../utils/StatusCodes');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
 
 function createUser(req, res, next) {
   const {
@@ -21,8 +21,8 @@ function createUser(req, res, next) {
       });
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') next(new Error400('Переданы некорректные данные'));
-      else if (error.code === 11000) next(new Error409('Пользователь с такой почтой уже зарегестрирован'));
+      if (error.name === 'ValidationError') next(new Error400(VALIDATION.INCORRECT_DATA));
+      else if (error.code === 11000) next(new Error409(VALIDATION.EMAIL_EXISTS));
       else next(error);
     });
 }
@@ -38,13 +38,15 @@ function getMyInfo(req, res, next) {
 
 function updateUser(req, res, next) {
   const { _id } = req.user;
+
   User.findByIdAndUpdate(_id, req.body, { runValidators: true, new: true })
     .then((user) => {
-      if (!user) return next(new Error404('Пользователя с указанным id не найдено'));
+      if (!user) return next(new Error404(USER.INCORRECT_ID));
       return res.send(user);
     })
     .catch((error) => {
-      if (error.name === 'ValidationError') next(new Error400('Переданы некорректные данные'));
+      if (error.name === 'ValidationError') next(new Error400(VALIDATION.INCORRECT_DATA));
+      else if (error.code === 11000) next(new Error409(VALIDATION.EMAIL_EXISTS));
       else next(error);
     });
 }
@@ -53,18 +55,16 @@ function login(req, res, next) {
   const { email, password } = req.body;
   User.findOne({ email }, '+password')
     .then((user) => {
-      if (!user) return next(new Error401('Неправильные почта или пароль'));
+      if (!user) return next(new Error401(USER.AUTH_WRONG));
 
-      return bcrypt.compare(password, user.password, (error, data) => {
-        if (error) return next(new Error401('Неправильные почта или пароль'));
-
-        if (data) {
-          const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'iddqd_idkfa', { expiresIn: '7d' });
-          return res.status(StatusCodes.OK).send({ token });
-        }
-
-        return next(new Error401('Неправильные почта или пароль'));
-      });
+      return bcrypt.compare(password, user.password)
+        .then((data) => {
+          if (data) {
+            const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+            return res.status(StatusCodes.OK).send({ token });
+          }
+          return next(new Error401(USER.AUTH_WRONG));
+        });
     })
     .catch(next);
 }
