@@ -16,4 +16,4 @@ node_modules
 .prettierignore
 
 # other
-12.env
+.env
