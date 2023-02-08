@@ -1,7 +1,10 @@
-# movie-explorer-api
+# Diploma Project: Movies explorer (backend part)
 
-Backend приложения MovieDB.
+**Desription:** Movies database with authorization
 
-- Server IP 51.250.107.100
+**Tech stack:** Node.js, Express, MongoDB, API
 
-- [Backend](kino.nomoredomains.club/api/)
+**Deployed link:** [Filmopoisk](https://kino.nomoredomains.club/)
+
+- Server `IP 51.250.107.100`
+- Backend endpoint `kino.nomoredomains.club/api/`
